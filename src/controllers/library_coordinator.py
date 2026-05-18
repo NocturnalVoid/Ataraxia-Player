@@ -318,22 +318,43 @@ class LibraryCoordinator(QObject):
     # ── Editor de metadatos ──────────────────────────────────────────────
 
     def _open_metadata_editor(self, filepath: str):
+        """
+        Abre el diálogo de edición de metadatos para la canción indicada,
+        persiste los cambios al archivo y refresca la biblioteca.
+
+        Cambios respecto a versiones anteriores:
+          - Se pasa SOLO (parent, current_meta) al diálogo. La firma actual
+            de MetadataDialog no acepta la carátula y antes se le pasaba
+            como tercer argumento, lo que rompía la apertura con TypeError.
+          - Se usa la clave "tracknumber" (singular, como la devuelve el
+            diálogo en get_new_data()), no "track_num", para que el número
+            de pista se persista correctamente.
+        """
         from src.views.metadata_dialog import MetadataDialog
         current_meta = self.metadata_model.extract_metadata(filepath)
-        current_cover = self.metadata_model.extract_cover_art(filepath)
 
-        dialog = MetadataDialog(self.main_window, current_meta, current_cover)
+        dialog = MetadataDialog(self.main_window, current_meta)
         if dialog.exec():
             new_data = dialog.get_new_data()
             try:
+                # Persistir cambios al archivo de audio (vía mutagen)
                 self.metadata_model.save_metadata(filepath, new_data)
+
+                # Reflejar los cambios en la BD. Se usan los valores nuevos
+                # cayendo a los actuales como respaldo si vinieran vacíos.
+                try:
+                    track_value = int(new_data.get("tracknumber") or 0)
+                except (TypeError, ValueError):
+                    track_value = 0
+
                 self.db_manager.update_song_metadata(
                     filepath,
                     new_data.get("title",  current_meta.get("title", "")),
                     new_data.get("artist", current_meta.get("artist", "")),
                     new_data.get("album",  current_meta.get("album", "")),
-                    int(new_data.get("track_num") or current_meta.get("track_num", 0) or 0),
+                    track_value,
                 )
+
                 self._load_library_from_db()
                 self.library_refreshed.emit()
                 self.main_window.show_status_message("Metadatos actualizados.")
