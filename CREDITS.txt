@@ -1,0 +1,4 @@
+Iconos de la interfaz gráfica:
+Phosphor Icons (https://phosphoricons.com)
+Licencia MIT (MIT License)
+Copyright (c) 2020-present, Phosphor Icons

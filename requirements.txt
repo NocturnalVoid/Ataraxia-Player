@@ -1,0 +1,33 @@
+# ─────────────────────────────────────────────────────────────────────────
+# Ataraxia Player — Dependencias del proyecto
+# ─────────────────────────────────────────────────────────────────────────
+#
+# Requisitos previos del sistema (NO se instalan con pip):
+#   - Python 3.11 o 3.12  (NO usar 3.13: winsdk aún no lo soporta en Windows)
+#   - FFmpeg en el PATH del sistema (https://ffmpeg.org/download.html)
+#
+# Instalación recomendada (entorno virtual):
+#   python -m venv .venv
+#   .venv\Scripts\activate           (Windows)
+#   source .venv/bin/activate        (Linux/macOS)
+#   pip install -r requirements.txt
+#
+# ─────────────────────────────────────────────────────────────────────────
+
+# Interfaz gráfica y multimedia (QMediaPlayer, QAudioOutput, widgets)
+PyQt6>=6.5.0
+
+# Lectura y escritura de metadatos de audio (ID3, Vorbis, MP4, FLAC, etc.)
+mutagen>=1.46.0
+
+# Cliente HTTP para iTunes API (descarga de carátulas) y lrclib.net (letras)
+requests>=2.31.0
+
+# Integración nativa con Windows: SMTC (System Media Transport Controls)
+# Solo se instala en Windows. Si pip falla aquí, verifica que estás usando
+# Python 3.11 o 3.12 (winsdk no tiene wheels para 3.13 todavía).
+winsdk==1.0.0b10; sys_platform == 'win32'
+
+# ─── Solo para desarrollo / pruebas ──────────────────────────────────────
+# Si solo vas a EJECUTAR el reproductor, puedes comentar la siguiente línea.
+pytest>=8.0
