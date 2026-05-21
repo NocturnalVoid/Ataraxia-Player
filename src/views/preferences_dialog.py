@@ -392,26 +392,29 @@ class PreferencesDialog(QDialog):
         layout.addWidget(backup_group)
 
         # --- Línea de estado persistente al final ---
-        # IMPORTANTE: el label NO debe hacer word-wrap. Si se hace wrap con
-        # textos largos (ej. el path completo de un respaldo recién creado),
-        # el label crece verticalmente y Qt re-comprime los widgets superiores
-        # del QGroupBox, achicando los botones y desplazando los textos.
-        # Usar elide en lugar de wrap mantiene siempre la misma altura.
+        # CRÍTICO: el label SIEMPRE ocupa espacio en el layout, incluso
+        # cuando no hay mensaje. Si lo escondiéramos con hide() y luego
+        # apareciera tras una operación, el padre tendría que re-comprimir
+        # los QGroupBox superiores para hacer hueco al label de 32px,
+        # achicando visualmente los botones y textos. Manteniéndolo siempre
+        # visible (con texto vacío al principio) el layout queda fijo
+        # desde el primer momento.
         self.lbl_maintenance_status = QLabel("")
         self.lbl_maintenance_status.setWordWrap(False)
         self.lbl_maintenance_status.setTextInteractionFlags(
             Qt.TextInteractionFlag.TextSelectableByMouse
         )
         self.lbl_maintenance_status.setFixedHeight(32)
-        # El stylesheet inicial usa el color resuelto del palette para
-        # contrastar correctamente en tema oscuro/claro.
-        _initial_text_color = self.palette().color(self.foregroundRole()).name()
+        self.lbl_maintenance_status.setSizePolicy(
+            QSizePolicy.Policy.Preferred,
+            QSizePolicy.Policy.Fixed
+        )
+        # Estilo inicial transparente (label invisible pero ocupando espacio)
         self.lbl_maintenance_status.setStyleSheet(
             "padding: 6px 10px; border-radius: 4px; "
-            "background-color: rgba(124, 77, 255, 35); "
-            f"color: {_initial_text_color}; font-size: 11px;"
+            "background-color: transparent; font-size: 11px;"
         )
-        self.lbl_maintenance_status.hide()
+        # NO ocultar — el espacio debe estar reservado desde el inicio
         layout.addWidget(self.lbl_maintenance_status)
 
         layout.addStretch()
@@ -501,7 +504,10 @@ class PreferencesDialog(QDialog):
             f"font-size: 11px; font-weight: bold;"
         )
         self.lbl_maintenance_status.setText(message)
-        self.lbl_maintenance_status.show()
+        # No llamar a show() — el label siempre está visible, solo cambia
+        # su contenido. Llamar a show() podía disparar un relayout en
+        # algunos escenarios (especialmente la primera operación) que
+        # achicaba los botones de los QGroupBox superiores.
 
     def _set_busy(self, busy: bool):
         """Deshabilita botones mientras una operación corre."""
