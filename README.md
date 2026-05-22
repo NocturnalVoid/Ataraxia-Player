@@ -85,13 +85,17 @@ El nombre "**Ataraxia**" viene del griego *ἀταραξία* — *un estado de 
 
 ## Capturas
 
-| Vista principal |
+<div align="center">
+<img src="screenshots/screenshot_1.png" alt="Main Window" width="720"/>
 
-<img src="screenshots/screenshot_1.png" alt="Main Window" width="120"/>
+| Vista principal |
+</div>
+
+<div align="center">
+<img src="screenshots/screenshot_2.png" alt="Dark Mode" width="720"/>
 
 | Tema oscuro |
-
-<img src="screenshots/icons/screenshot_2.png" alt="Dark Mode" width="120"/>
+</div>
 
 ---
 
