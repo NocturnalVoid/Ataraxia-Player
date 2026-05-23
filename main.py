@@ -9,6 +9,33 @@ from src.utils.logger import configure_logging, get_logger
 from src.controllers.main_controller import MainController
 
 
+# ═══════════════════════════════════════════════════════════════════════════
+#  MODO DEMO
+# ═══════════════════════════════════════════════════════════════════════════
+#  Cambia este flag a True para activar la importación automática de las
+#  canciones que estén en `assets/music/` la primera vez que el usuario
+#  abra la app. Pensado para jueces, sinodales o usuarios que quieren
+#  probar el reproductor sin tener música propia a la mano.
+#
+#  La importación solo ocurre cuando:
+#    - DEMO_MODE = True (este flag)
+#    - La biblioteca está vacía (no hay canciones en la BD)
+#    - La carpeta assets/music/ existe y contiene al menos un archivo de audio
+#
+#  Si cualquiera de esas condiciones no se cumple, la app arranca normal
+#  sin importar nada (no pisa la biblioteca del usuario).
+#
+#  Funciona en:
+#    - Desarrollo (python main.py)
+#    - .exe compilado con PyInstaller (Windows)
+#    - AppImage / binario nativo (Linux)
+#
+#  Para distribuir SIN demo, déjalo en False y no incluyas la carpeta
+#  assets/music/ en el bundle.
+# ═══════════════════════════════════════════════════════════════════════════
+DEMO_MODE = True
+
+
 def _install_linux_desktop_file():
     """
     En Linux (especialmente Wayland), los compositores buscan el archivo
@@ -223,7 +250,7 @@ def main():
     instance_handler.start_server()
 
     try:
-        controller = MainController()
+        controller = MainController(demo_mode=DEMO_MODE)
         controller.ipc_handler = instance_handler
         instance_handler.file_received.connect(controller._play_dropped_file)
 
